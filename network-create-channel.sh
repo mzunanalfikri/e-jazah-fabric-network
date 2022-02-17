@@ -8,7 +8,7 @@ CHANNEL_NAME="$1"
 DELAY="$2"
 MAX_RETRY="$3"
 VERBOSE="$4"
-: ${CHANNEL_NAME:="mychannel"}
+: ${CHANNEL_NAME:="main-channel"}
 : ${DELAY:="3"}
 : ${MAX_RETRY:="5"}
 : ${VERBOSE:="false"}
@@ -23,7 +23,7 @@ createChannelGenesisBlock() {
 		fatalln "configtxgen tool not found."
 	fi
 	set -x
-	configtxgen -profile TwoOrgsApplicationGenesis -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
+	configtxgen -profile EjazahApplicationGenesis -outputBlock ./channel-artifacts/${CHANNEL_NAME}.block -channelID $CHANNEL_NAME
 	res=$?
 	{ set +x; } 2>/dev/null
   verifyResult $res "Failed to generate channel configuration transaction..."
@@ -49,7 +49,7 @@ createChannel() {
 
 # joinChannel ORG
 joinChannel() {
-  FABRIC_CFG_PATH=$PWD/../config/
+  FABRIC_CFG_PATH=$PWD/config/
   ORG=$1
   setGlobals $ORG
 	local rc=1
@@ -65,7 +65,9 @@ joinChannel() {
 		COUNTER=$(expr $COUNTER + 1)
 	done
 	cat log.txt
-	verifyResult $res "After $MAX_RETRY attempts, peer0.org${ORG} has failed to join channel '$CHANNEL_NAME' "
+	i=$1
+	((i--))
+	verifyResult $res "After $MAX_RETRY attempts, peer${}.org has failed to join channel '$CHANNEL_NAME' "
 }
 
 setAnchorPeer() {
@@ -79,7 +81,7 @@ FABRIC_CFG_PATH=${PWD}/configtx
 infoln "Generating channel genesis block '${CHANNEL_NAME}.block'"
 createChannelGenesisBlock
 
-FABRIC_CFG_PATH=$PWD/../config/
+FABRIC_CFG_PATH=$PWD/config/
 BLOCKFILE="./channel-artifacts/${CHANNEL_NAME}.block"
 
 ## Create channel
@@ -88,15 +90,15 @@ createChannel
 successln "Channel '$CHANNEL_NAME' created"
 
 ## Join all the peers to the channel
-infoln "Joining org1 peer to the channel..."
+infoln "Joining org1 peer 0 to the channel..."
 joinChannel 1
-infoln "Joining org2 peer to the channel..."
+infoln "Joining org1 peer 1 to the channel..."
 joinChannel 2
 
-## Set the anchor peers for each org in the channel
-infoln "Setting anchor peer for org1..."
+## Set the anchor peers in the channel
+infoln "Setting anchor peer 0 for org1..."
 setAnchorPeer 1
-infoln "Setting anchor peer for org2..."
+infoln "Setting anchor peer 1 for org1..."
 setAnchorPeer 2
 
 successln "Channel '$CHANNEL_NAME' joined"
