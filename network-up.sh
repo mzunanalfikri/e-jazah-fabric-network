@@ -6,7 +6,7 @@
 #
 # Modified by : Muhammad Zunan Alfikri
 
-# docker-compose -p e-jazah_network -f docker/docker-compose-ca.yaml up -d
+. scripts/utils.sh
 
 # timeout duration - the duration the CLI should wait for a response from
 # another container before giving up

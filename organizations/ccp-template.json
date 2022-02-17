@@ -15,7 +15,8 @@
         "Org${ORG}": {
             "mspid": "Org${ORG}MSP",
             "peers": [
-                "peer0.org${ORG}.e-jazah.id", "peer1.org${ORG}.e-jazah.id"
+                "peer0.org${ORG}.e-jazah.id", 
+                "peer1.org${ORG}.e-jazah.id"
             ],
             "certificateAuthorities": [
                 "ca.org${ORG}.e-jazah.id"
