@@ -2,11 +2,11 @@
 
 source scripts/utils.sh
 
-CHANNEL_NAME=${1:-"mychannel"}
-CC_NAME=${2}
-CC_SRC_PATH=${3}
-CC_SRC_LANGUAGE=${4}
-CC_VERSION=${5:-"1.0"}
+CHANNEL_NAME=${1:-"main-channel"}
+CC_NAME=${2:-"basic"}
+CC_SRC_PATH=${3:-"chaincode-javascript"}
+CC_SRC_LANGUAGE=${4:-"javascript"}
+CC_VERSION=${5:-"2.0"}
 CC_SEQUENCE=${6:-"1"}
 CC_INIT_FCN=${7:-"NA"}
 CC_END_POLICY=${8:-"NA"}
@@ -29,7 +29,7 @@ println "- DELAY: ${C_GREEN}${DELAY}${C_RESET}"
 println "- MAX_RETRY: ${C_GREEN}${MAX_RETRY}${C_RESET}"
 println "- VERBOSE: ${C_GREEN}${VERBOSE}${C_RESET}"
 
-FABRIC_CFG_PATH=$PWD/../config/
+FABRIC_CFG_PATH=$PWD/config/
 
 #User has not provided a name
 if [ -z "$CC_NAME" ] || [ "$CC_NAME" = "NA" ]; then
@@ -127,7 +127,7 @@ packageChaincode
 ## Install chaincode on peer0.org1 and peer0.org2
 infoln "Installing chaincode on peer0.org1..."
 installChaincode 1
-infoln "Install chaincode on peer0.org2..."
+infoln "Install chaincode on peer1.org1..."
 installChaincode 2
 
 ## query whether the chaincode is installed
@@ -138,19 +138,20 @@ approveForMyOrg 1
 
 ## check whether the chaincode definition is ready to be committed
 ## expect org1 to have approved and org2 not to
-checkCommitReadiness 1 "\"Org1MSP\": true" "\"Org2MSP\": false"
-checkCommitReadiness 2 "\"Org1MSP\": true" "\"Org2MSP\": false"
+checkCommitReadiness 1 "\"Org1MSP\": true"
+# checkCommitReadiness 2 "\"Org1MSP\": true"
 
 ## now approve also for org2
-approveForMyOrg 2
+# approveForMyOrg 2
 
 ## check whether the chaincode definition is ready to be committed
 ## expect them both to have approved
-checkCommitReadiness 1 "\"Org1MSP\": true" "\"Org2MSP\": true"
-checkCommitReadiness 2 "\"Org1MSP\": true" "\"Org2MSP\": true"
+# checkCommitReadiness 1 "\"Org1MSP\": true" "\"Org2MSP\": true"
+# checkCommitReadiness 2 "\"Org1MSP\": true" "\"Org2MSP\": true"
 
 ## now that we know for sure both orgs have approved, commit the definition
 commitChaincodeDefinition 1 2
+# commitChaincodeDefinition 1
 
 ## query on both orgs to see that the definition committed successfully
 queryCommitted 1
