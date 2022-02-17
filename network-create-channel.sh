@@ -67,7 +67,7 @@ joinChannel() {
 	cat log.txt
 	i=$1
 	((i--))
-	verifyResult $res "After $MAX_RETRY attempts, peer${}.org has failed to join channel '$CHANNEL_NAME' "
+	verifyResult $res "After $MAX_RETRY attempts, peer${i}.org has failed to join channel '$CHANNEL_NAME' "
 }
 
 setAnchorPeer() {
@@ -75,13 +75,13 @@ setAnchorPeer() {
   docker exec cli ./scripts/setAnchorPeer.sh $ORG $CHANNEL_NAME 
 }
 
-FABRIC_CFG_PATH=${PWD}/configtx
+export FABRIC_CFG_PATH=${PWD}/configtx
 
 ## Create channel genesis block
 infoln "Generating channel genesis block '${CHANNEL_NAME}.block'"
 createChannelGenesisBlock
 
-FABRIC_CFG_PATH=$PWD/config/
+export FABRIC_CFG_PATH=$PWD/config/
 BLOCKFILE="./channel-artifacts/${CHANNEL_NAME}.block"
 
 ## Create channel

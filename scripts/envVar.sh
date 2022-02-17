@@ -24,18 +24,20 @@ setGlobals() {
    else
       USING_ORG="${OVERRIDE_ORG}"
    fi
-   infoln "Using organization ${USING_ORG}"
    if [ $USING_ORG -eq 1 ]; then
+      infoln "Using peer 0, port 7051"
       export CORE_PEER_LOCALMSPID="Org1MSP"
       export CORE_PEER_TLS_ROOTCERT_FILE=$ORG1_CA
       export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.e-jazah.id/users/Admin@org1.e-jazah.id/msp
       export CORE_PEER_ADDRESS=localhost:7051
    elif [ $USING_ORG -eq 2 ]; then
+      infoln "Using peer 1, port 9051"
       export CORE_PEER_LOCALMSPID="Org1MSP"
       export CORE_PEER_TLS_ROOTCERT_FILE=$ORG1_CA
       export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.e-jazah.id/users/Admin@org1.e-jazah.id/msp
       export CORE_PEER_ADDRESS=localhost:9051
    elif [ $USING_ORG -eq 3 ]; then
+      infoln "Using peer 2, port 11051"
       export CORE_PEER_LOCALMSPID="Org1MSP"
       export CORE_PEER_TLS_ROOTCERT_FILE=$ORG1_CA
       export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.e-jazah.id/users/Admin@org1.e-jazah.id/msp

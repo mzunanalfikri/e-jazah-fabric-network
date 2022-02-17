@@ -70,6 +70,7 @@ function createOrg1() {
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer0.org1.e-jazah.id/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer1.org1.e-jazah.id/msp/config.yaml"
 
   infoln "Generating the peer0-tls certificates"
   set -x
