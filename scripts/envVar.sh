@@ -14,7 +14,11 @@ export CORE_PEER_TLS_ENABLED=true
 export ORDERER_CA=${PWD}/organizations/ordererOrganizations/e-jazah.id/tlsca/tlsca.e-jazah.id-cert.pem
 export ORG1_CA=${PWD}/organizations/peerOrganizations/org1.e-jazah.id/tlsca/tlsca.org1.e-jazah.id-cert.pem
 export ORDERER_ADMIN_TLS_SIGN_CERT=${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/server.crt
+export ORDERER2_ADMIN_TLS_SIGN_CERT=${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls/server.crt
+export ORDERER3_ADMIN_TLS_SIGN_CERT=${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer3.e-jazah.id/tls/server.crt
 export ORDERER_ADMIN_TLS_PRIVATE_KEY=${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/server.key
+export ORDERER2_ADMIN_TLS_PRIVATE_KEY=${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls/server.key
+export ORDERER3_ADMIN_TLS_PRIVATE_KEY=${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer3.e-jazah.id/tls/server.key
 
 # Set environment variables for the peer org
 setGlobals() {

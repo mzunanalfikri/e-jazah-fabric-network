@@ -65,6 +65,7 @@ Organizations:
         OrdererEndpoints:
             - "127.0.0.1:7050"
             - "127.0.0.1:8050"
+            - "127.0.0.1:9050"
 
         # AnchorPeers defines the location of peers which can be used for
         # cross-org gossip communication.
@@ -337,7 +338,7 @@ Orderer: &OrdererDefaults
               ClientTLSCert: path/to/ClientTLSCert1
               ServerTLSCert: path/to/ServerTLSCert1
             - Host: raft2.e-jazah.id
-              Port: 7050
+              Port: 9050
               ClientTLSCert: path/to/ClientTLSCert2
               ServerTLSCert: path/to/ServerTLSCert2
 
