@@ -64,6 +64,7 @@ Organizations:
         # and peers may to connect to to push transactions and receive blocks respectively.
         OrdererEndpoints:
             - "127.0.0.1:7050"
+            - "127.0.0.1:8050"
 
         # AnchorPeers defines the location of peers which can be used for
         # cross-org gossip communication.
@@ -327,18 +328,14 @@ Orderer: &OrdererDefaults
         # a subset of the host:port items enumerated in this list should be
         # replicated under the Orderer.Addresses key above.
         Consenters:
-            - Host: raft0.e-jazah.id
-              Port: 7050
-              ClientTLSCert: path/to/ClientTLSCert0
-              ServerTLSCert: path/to/ServerTLSCert0
-            - Host: raft1.e-jazah.id
-              Port: 7050
-              ClientTLSCert: path/to/ClientTLSCert1
-              ServerTLSCert: path/to/ServerTLSCert1
-            - Host: raft2.e-jazah.id
-              Port: 7050
-              ClientTLSCert: path/to/ClientTLSCert2
-              ServerTLSCert: path/to/ServerTLSCert2
+             - Host: orderer.e-jazah.id
+                Port: 7050
+                ClientTLSCert: ../organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/server.crt
+                ServerTLSCert: ../organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/server.crt
+            - Host: orderer2.e-jazah.id
+                Port: 8050
+                ClientTLSCert: ../organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls/server.crt
+                ServerTLSCert: ../organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls/server.crt
 
         # Options to be specified for all the etcd/raft nodes. The values here
         # are the defaults for all new channels and can be modified on a
