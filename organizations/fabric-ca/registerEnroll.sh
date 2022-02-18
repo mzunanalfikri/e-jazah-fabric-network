@@ -49,6 +49,11 @@ function createOrg1() {
   fabric-ca-client register --caname ca-org1 --id.name peer1 --id.secret peer1pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
   { set +x; } 2>/dev/null
 
+  infoln "Registering peer2"
+  set -x
+  fabric-ca-client register --caname ca-org1 --id.name peer2 --id.secret peer2pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
+  { set +x; } 2>/dev/null
+
   infoln "Registering user"
   set -x
   fabric-ca-client register --caname ca-org1 --id.name user1 --id.secret user1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
@@ -69,8 +74,14 @@ function createOrg1() {
   fabric-ca-client enroll -u https://peer1:peer1pw@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer1.org1.e-jazah.id/msp" --csr.hosts peer1.org1.e-jazah.id --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
   { set +x; } 2>/dev/null
 
+  infoln "Generating the peer2 msp"
+  set -x
+  fabric-ca-client enroll -u https://peer2:peer2pw@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer2.org1.e-jazah.id/msp" --csr.hosts peer2.org1.e-jazah.id --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
+  { set +x; } 2>/dev/null
+
   cp "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer0.org1.e-jazah.id/msp/config.yaml"
   cp "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer1.org1.e-jazah.id/msp/config.yaml"
+  cp "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer2.org1.e-jazah.id/msp/config.yaml"
 
   infoln "Generating the peer0-tls certificates"
   set -x
@@ -82,6 +93,11 @@ function createOrg1() {
   fabric-ca-client enroll -u https://peer1:peer1pw@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer1.org1.e-jazah.id/tls" --enrollment.profile tls --csr.hosts peer1.org1.e-jazah.id --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
   { set +x; } 2>/dev/null
 
+  infoln "Generating the peer2-tls certificates"
+  set -x
+  fabric-ca-client enroll -u https://peer2:peer2pw@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer2.org1.e-jazah.id/tls" --enrollment.profile tls --csr.hosts peer2.org1.e-jazah.id --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/org1/ca-cert.pem"
+  { set +x; } 2>/dev/null
+
   # Copy the tls CA cert, server cert, server keystore to well known file names in the peer's tls directory that are referenced by peer startup config
   cp "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer0.org1.e-jazah.id/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer0.org1.e-jazah.id/tls/ca.crt"
   cp "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer0.org1.e-jazah.id/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer0.org1.e-jazah.id/tls/server.crt"
@@ -89,6 +105,9 @@ function createOrg1() {
   cp "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer1.org1.e-jazah.id/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer1.org1.e-jazah.id/tls/ca.crt"
   cp "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer1.org1.e-jazah.id/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer1.org1.e-jazah.id/tls/server.crt"
   cp "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer1.org1.e-jazah.id/tls/keystore/"* "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer1.org1.e-jazah.id/tls/server.key"
+  cp "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer2.org1.e-jazah.id/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer2.org1.e-jazah.id/tls/ca.crt"
+  cp "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer2.org1.e-jazah.id/tls/signcerts/"* "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer2.org1.e-jazah.id/tls/server.crt"
+  cp "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer2.org1.e-jazah.id/tls/keystore/"* "${PWD}/organizations/peerOrganizations/org1.e-jazah.id/peers/peer2.org1.e-jazah.id/tls/server.key"
 
   infoln "Generating the user msp"
   set -x

@@ -13,6 +13,7 @@ organizations:
     peers:
     - peer0.org${ORG}.e-jazah.id
     - peer1.org${ORG}.e-jazah.id
+    - peer2.org${ORG}.e-jazah.id
     certificateAuthorities:
     - ca.org${ORG}.e-jazah.id
 peers:
@@ -32,6 +33,14 @@ peers:
     grpcOptions:
       ssl-target-name-override: peer1.org${ORG}.e-jazah.id
       hostnameOverride: peer1.org${ORG}.e-jazah.id
+  peer2.org${ORG}.e-jazah.id:
+    url: grpcs://localhost:${P2PORT}
+    tlsCACerts:
+      pem: |
+          ${PEERPEM}
+    grpcOptions:
+      ssl-target-name-override: peer2.org${ORG}.e-jazah.id
+      hostnameOverride: peer2.org${ORG}.e-jazah.id
 certificateAuthorities:
   ca.org${ORG}.e-jazah.id:
     url: https://localhost:${CAPORT}
