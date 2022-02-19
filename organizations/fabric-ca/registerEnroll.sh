@@ -164,9 +164,19 @@ function createOrderer() {
   fabric-ca-client register --caname ca-orderer --id.name orderer --id.secret ordererpw --id.type orderer --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
   { set +x; } 2>/dev/null
 
+  infoln "Registering orderer2"
+  set -x
+  fabric-ca-client register --caname ca-orderer --id.name orderer2 --id.secret orderer2pw --id.type orderer --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
+  { set +x; } 2>/dev/null
+
   infoln "Registering the orderer admin"
   set -x
   fabric-ca-client register --caname ca-orderer --id.name ordererAdmin --id.secret ordererAdminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
+  { set +x; } 2>/dev/null
+
+  infoln "Registering the orderer2 admin"
+  set -x
+  fabric-ca-client register --caname ca-orderer --id.name orderer2Admin --id.secret orderer2Adminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
   { set +x; } 2>/dev/null
 
   infoln "Generating the orderer msp"
@@ -174,21 +184,38 @@ function createOrderer() {
   fabric-ca-client enroll -u https://orderer:ordererpw@localhost:9054 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/msp" --csr.hosts orderer.e-jazah.id --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
   { set +x; } 2>/dev/null
 
+  infoln "Generating the orderer2 msp"
+  set -x
+  fabric-ca-client enroll -u https://orderer2:orderer2pw@localhost:9054 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/msp" --csr.hosts orderer2.e-jazah.id --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
+  { set +x; } 2>/dev/null
+
   cp "${PWD}/organizations/ordererOrganizations/e-jazah.id/msp/config.yaml" "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/msp/config.yaml"
+  cp "${PWD}/organizations/ordererOrganizations/e-jazah.id/msp/config.yaml" "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/msp/config.yaml"
 
   infoln "Generating the orderer-tls certificates"
   set -x
   fabric-ca-client enroll -u https://orderer:ordererpw@localhost:9054 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls" --enrollment.profile tls --csr.hosts orderer.e-jazah.id --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
   { set +x; } 2>/dev/null
 
+  infoln "Generating the orderer2-tls certificates"
+  set -x
+  fabric-ca-client enroll -u https://orderer2:orderer2pw@localhost:9054 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls" --enrollment.profile tls --csr.hosts orderer2.e-jazah.id --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/ca-cert.pem"
+  { set +x; } 2>/dev/null
+
   # Copy the tls CA cert, server cert, server keystore to well known file names in the orderer's tls directory that are referenced by orderer startup config
   cp "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/tlscacerts/"* "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/ca.crt"
   cp "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/signcerts/"* "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/server.crt"
   cp "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/keystore/"* "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/server.key"
+  cp "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls/tlscacerts/"* "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls/ca.crt"
+  cp "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls/signcerts/"* "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls/server.crt"
+  cp "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls/keystore/"* "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls/server.key"
 
   # Copy orderer org's CA cert to orderer's /msp/tlscacerts directory (for use in the orderer MSP definition)
   mkdir -p "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/msp/tlscacerts"
   cp "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/tlscacerts/"* "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/msp/tlscacerts/tlsca.e-jazah.id-cert.pem"
+
+  mkdir -p "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/msp/tlscacerts"
+  cp "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls/tlscacerts/"* "${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/msp/tlscacerts/tlsca.e-jazah.id-cert.pem"
 
   infoln "Generating the admin msp"
   set -x

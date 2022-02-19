@@ -43,6 +43,7 @@ Organizations:
 
         OrdererEndpoints:
             - orderer.e-jazah.id:7050
+            - orderer2.e-jazah.id:8050
 
     - &Org1
         # DefaultOrg defines the organization which is used in the sampleconfig
@@ -182,6 +183,7 @@ Orderer: &OrdererDefaults
     # to include the OrdererEndpoints item in your org definition
     Addresses:
         - orderer.e-jazah.id:7050
+        - orderer2.e-jazah.id:8050
 
     EtcdRaft:
         Consenters:
@@ -189,6 +191,10 @@ Orderer: &OrdererDefaults
           Port: 7050
           ClientTLSCert: ../organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/server.crt
           ServerTLSCert: ../organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/server.crt
+        - Host: orderer2.e-jazah.id
+          Port: 8050
+          ClientTLSCert: ../organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls/server.crt
+          ServerTLSCert: ../organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls/server.crt
 
     # Batch Timeout: The amount of time to wait before creating a batch
     BatchTimeout: 2s
@@ -277,6 +283,7 @@ Profiles:
         <<: *ChannelDefaults
         Orderer:
             <<: *OrdererDefaults
+            OrdererType: etcdraft
             Organizations:
                 - *OrdererOrg
             Capabilities: *OrdererCapabilities
