@@ -1,0 +1,53 @@
+{
+    "name": "e-jazah-chaincode",
+    "version": "1.0.0",
+    "description": "E-jazah smart contract implemented in Javascript",
+    "main": "index.js",
+    "scripts": {
+        "test": "nyc mocha --recursive"
+    },
+    "keywords": [
+        "chaincode",
+        "smart",
+        "contract",
+        "hyperledger",
+        "fabric"
+    ],
+    "author": "Muhammad Zunan Alfikri",
+    "license": "ISC",
+    "dependencies": {
+        "bcrypt": "^5.0.1",
+        "crypto": "^1.0.1",
+        "fabric-contract-api": "^2.2.2",
+        "fabric-shim": "^2.2.2",
+        "generate-password": "^1.7.0",
+        "json-stringify-deterministic": "^1.0.2",
+        "sort-keys-recursive": "^2.1.2",
+        "uuid": "^8.3.2"
+    },
+    "devDependencies": {
+        "chai": "^4.3.6",
+        "mocha": "^9.2.1",
+        "nyc": "^15.1.0",
+        "sinon": "^13.0.1",
+        "sinon-chai": "^3.7.0"
+    },
+    "nyc": {
+        "exclude": [
+            "coverage/**",
+            "test/**",
+            "index.js",
+            ".eslintrc.js"
+        ],
+        "reporter": [
+            "text-summary",
+            "html"
+        ],
+        "all": true,
+        "check-coverage": true,
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+    }
+}
