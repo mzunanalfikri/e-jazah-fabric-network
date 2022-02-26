@@ -199,5 +199,51 @@ describe('E-jazah chaincode test', () => {
                 }
             })
         })
+
+        describe('Test check Update password', () => {
+            it ('should return success', async() => {
+                let cc = new Chaincode()
+                await cc.InitLedger(transactionContext)
+                await cc.UpdateUserPassword(transactionContext, 'admin', 'adminpw')
+                let res = await cc.CheckUserCredential(transactionContext,'admin','adminpw')
+                let resObject = JSON.parse(res)
+                expect(resObject.Name).equal('admin')
+            })
+            it ('should return fail', async() => {
+                let cc = new Chaincode()
+                await cc.InitLedger(transactionContext)
+                try {
+                    await cc.UpdateUserPassword(transactionContext, 'admin2', 'adminpw')
+                } catch (error) {
+                    expect(error.toString()).equal('Error: User admin2 does not exist')
+                }
+            })
+        })
+
+        describe('Test check update status link', () => {
+            it ('should return user (success)', async() => {
+                let cc = new Chaincode()
+                await cc.InitLedger(transactionContext)
+                await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY')
+                let res = await cc.CreateStudent(transactionContext,'sdbmd@gmail.com', '1234567890','Ahmad Maulana', 'Sleman','29-09-2008' )
+                let resObject = JSON.parse(res)
+                let changed = await cc.ChangeStatusStudentIjazahLink(transactionContext, '1234567890')
+                let changedObject = JSON.parse(changed)
+                expect(changedObject.LinkOn).equal(!res.LinkOn)
+            })
+
+            it ('should return user (success)', async() => {
+                let cc = new Chaincode()
+                await cc.InitLedger(transactionContext)
+                await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY')
+                await cc.CreateStudent(transactionContext,'sdbmd@gmail.com', '1234567890','Ahmad Maulana', 'Sleman','29-09-2008' )
+                try {
+                    let changed = await cc.ChangeStatusStudentIjazahLink(transactionContext, '12345678990')
+                } catch (error) {
+                    expect(error.toString()).equal('Error: User 12345678990 does not exist')
+                }
+
+            })
+        })
     })
 })

@@ -127,8 +127,26 @@ class Chaincode extends Contract {
         return user.toString()
     }
 
-    async UpdatePassword(){
+    // tested
+    async UpdateUserPassword(ctx, id, newPassword){
+        const user = await this.GetUserById(ctx, id)
+        let userObject = JSON.parse(user)
 
+        userObject.Password = bcrypt.hashSync(newPassword, SALT)
+        await ctx.stub.putState(id, Buffer.from(stringify(sortKey(userObject))))
+        await this.AddLog(ctx, id, `${id} changed user password.`)
+        return JSON.stringify(userObject)
+    }
+
+    // tested
+    async ChangeStatusStudentIjazahLink(ctx, id){
+        const user = await this.GetUserById(ctx, id)
+        let userObject = JSON.parse(user)
+
+        userObject.LinkOn = !userObject.LinkOn
+        await ctx.stub.putState(id, Buffer.from(stringify(sortKey(userObject))))
+        await this.AddLog(ctx, id, `${id} change link status to ${userObject.LinkOn}`)
+        return JSON.stringify(userObject)
     }
 
     async CreateIjazah(){
@@ -146,10 +164,6 @@ class Chaincode extends Contract {
 
     // admin only
     async GetAllIjazah(){
-
-    }
-
-    async SetStudentIjazahLink(){
 
     }
 
