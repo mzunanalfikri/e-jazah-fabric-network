@@ -5,9 +5,10 @@ const sortKey = require('sort-keys-recursive')
 const uuid = require('uuid')
 const bcrypt = require('bcrypt')
 var generator = require('generate-password');
+const pki = require('./pki')
 const { Contract } = require('fabric-contract-api')
 const ADMIN_ROLE = 'admin'
-const STUDENT_ROLE = 'siswa'
+const STUDENT_ROLE = 'student'
 const INSTITUTION_ROLE = 'institusi'
 const SALT = 10
 
@@ -23,6 +24,13 @@ class Chaincode extends Contract {
             docType : 'user'
         }
         await ctx.stub.putState(admin.ID, Buffer.from(stringify(sortKey(admin))))
+    }
+
+    async StudentInitTest(ctx){
+        await this.CreateInstitution(ctx, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY')
+        await this.CreateInstitution(ctx, 'admin', 'itb@gmail.com', 'Institut Teknologi Bandung', 'PT', 'Bandung', 'Jawa Barat')
+        await this.CreateStudent(ctx,'sdbmd@gmail.com', '1234567890','Ahmad Maulana', 'Sleman','29-09-2008' )
+        await this.CreateStudent(ctx,'itb@gmail.com', '340401999','Ahmad Alfikri', 'Sleman','29-09-1999' )
     }
 
     // tested
@@ -67,7 +75,7 @@ class Chaincode extends Contract {
     }
 
     // tested
-    async CreateInstitution(ctx, authUser, institutionEmail, name, grade, city, province){
+    async CreateInstitution(ctx, authUser, institutionEmail, name, level, city, province){
         const exist = await this.IsAssetExist(ctx, institutionEmail)
         if (exist) {
             throw new Error(`Institution ${name} with email ${institutionEmail} already exist`)
@@ -79,14 +87,17 @@ class Chaincode extends Contract {
         }
 
         const password = generator.generate({length:10, numbers: true})
+        const { privateKey, publicKey } = pki.generateKeyPair()
         const institution = {
             ID : institutionEmail, 
             Name : name,
             Password : bcrypt.hashSync(password, SALT),
-            Grade : grade,
+            Level : level,
             City : city,
             Province : province,
             Role : INSTITUTION_ROLE,
+            PrivateKey : privateKey,
+            PublicKey : publicKey,
             docType : "user"
         }
 
@@ -149,26 +160,151 @@ class Chaincode extends Contract {
         return JSON.stringify(userObject)
     }
 
-    async CreateIjazah(){
+    // tested
+    async CreateIjazahPT(ctx, authUser, nik, studNumber, prodi, gelar, singkatan, gradDate, issueDate, leaderName, grade){
+        let student = JSON.parse(await this.GetUserById(ctx, nik))
+        let institution = JSON.parse(await this.GetUserById(ctx, authUser))
+        // console.log(student)
+        // console.log(institution)
 
+        let id = institution.Level + "-" + student.ID
+        let certificate = {
+            ID : id,
+            InstitutionName : institution.Name,
+            Province : institution.Province,
+            City : institution.City,
+            Level : institution.Level,
+            StudentName : student.Name,
+            BirthPlace : student.BirthPlace,
+            BirthDate : student.BirthDate,
+            NIK : student.ID,
+            StudentNumber : studNumber,
+            Prodi : prodi,
+            Gelar : gelar,
+            SingkatanGelar : singkatan,
+            GraduationDate : gradDate,
+            IssueDate : issueDate,
+            LeaderName : leaderName,
+            Grade : grade //need to parse
+        }
+
+        let signature = pki.sign(stringify(sortKey(certificate)), institution.PrivateKey)
+        certificate["Signature"] = signature
+        // not included in signature
+        certificate["InstitutionEmail"] = authUser
+        certificate["docType"] = "ijazah"
+
+        await ctx.stub.putState(certificate.ID, Buffer.from(stringify(sortKey(certificate))))
+        await this.AddLog(ctx, authUser, `${authUser} create ijazah with id ${id}.`)
+        return JSON.stringify(certificate)
     }
 
-    async GetIjazahByUser(){
+    // tested
+    async CreateIjazahLowerEducation(ctx, authUser, nik, studNumber, gradDate, issueDate, leaderName, grade){
+        let student = JSON.parse(await this.GetUserById(ctx, nik))
+        let institution = JSON.parse(await this.GetUserById(ctx, authUser))
+        // console.log(student)
+        // console.log(institution)
 
+        let id = institution.Level + "-" + student.ID
+        let certificate = {
+            ID : id,
+            InstitutionName : institution.Name,
+            Province : institution.Province,
+            City : institution.City,
+            Level : institution.Level,
+            StudentName : student.Name,
+            BirthPlace : student.BirthPlace,
+            BirthDate : student.BirthDate,
+            NIK : student.ID,
+            StudentNumber : studNumber,
+            GraduationDate : gradDate,
+            IssueDate : issueDate,
+            LeaderName : leaderName,
+            Grade : grade //need to parse
+        }
+
+        let signature = pki.sign(stringify(sortKey(certificate)), institution.PrivateKey)
+        certificate["Signature"] = signature
+        // not included in signature
+        certificate["InstitutionEmail"] = authUser
+        certificate["docType"] = "ijazah"
+
+        await ctx.stub.putState(certificate.ID, Buffer.from(stringify(sortKey(certificate))))
+        await this.AddLog(ctx, authUser, `${authUser} create ijazah with id ${id}.`)
+        return JSON.stringify(certificate)
+    }
+
+    // tested
+    async GetIjazahById(ctx, id){
+        const ijazah = await ctx.stub.getState(id)
+        if (!ijazah || ijazah.length === 0) {
+            throw new Error(`Ijazah ${id} does not exist`);
+        }
+        return ijazah.toString()
+    }
+
+    async GetIjazahByUser(ctx, id){
+        let allResult = []
+        let iterator = await ctx.stub.getStateByRange('','')
+        let result = await iterator.next()
+        while (!result.done){
+            let strObj = Buffer.from(result.value.value.toString()).toString('utf8')
+            let obj = JSON.parse(strObj)
+            // console.log(obj)
+            if (obj.docType == 'ijazah' && obj.NIK == id){
+                allResult.push(obj)
+            }
+
+            result = await iterator.next()
+        }
+        return JSON.stringify(allResult)
     }
 
     // institusi only
-    async GetIjazahByInstitution(){
+    async GetIjazahByInstitution(ctx, id){
+        let allResult = []
+        let iterator = await ctx.stub.getStateByRange('','')
+        let result = await iterator.next()
+        while (!result.done){
+            let strObj = Buffer.from(result.value.value.toString()).toString('utf8')
+            let obj = JSON.parse(strObj)
+            // console.log(obj)
+            if (obj.docType == 'ijazah' && obj.InstitutionEmail == id){
+                allResult.push(obj)
+            }
 
+            result = await iterator.next()
+        }
+        return JSON.stringify(allResult)
     }
 
     // admin only
-    async GetAllIjazah(){
+    async GetAllIjazah(ctx){
+        let allResult = []
+        let iterator = await ctx.stub.getStateByRange('','')
+        let result = await iterator.next()
+        while (!result.done){
+            let strObj = Buffer.from(result.value.value.toString()).toString('utf8')
+            let obj = JSON.parse(strObj)
+            // console.log(obj)
+            if (obj.docType == 'ijazah'){
+                allResult.push(obj)
+            }
 
+            result = await iterator.next()
+        }
+        return JSON.stringify(allResult)
     }
 
-    async VerifyIjazah(){
-
+    // content must be stringify and sortByKey
+    async VerifyIjazah(ctx, idIjazah, contentString){
+        let ijazah = JSON.parse(await this.GetIjazahById(ctx, idIjazah))
+        let institution = JSON.parse(await this.GetUserById(ctx, ijazah.InstitutionEmail))
+        // console.log(ijazah)
+        // console.log(institution)
+        let res = pki.verify(contentString, ijazah.Signature, institution.PublicKey)
+        return JSON.stringify(res)
     }
 
     // tested

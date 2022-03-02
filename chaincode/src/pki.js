@@ -8,6 +8,14 @@ function generateKeyPair(){
 
     const keyPair = crypto.generateKeyPairSync('rsa', {
         modulusLength: 2048,
+        publicKeyEncoding: {
+            type: "pkcs1",
+            format: "pem",
+          },
+          privateKeyEncoding: {
+            type: "pkcs1",
+            format: "pem",
+          },
     });
 
     return keyPair
@@ -28,7 +36,6 @@ function verify(content, signature, publicKey){
 }
 
 // const { privateKey, publicKey } = generateKeyPair()
-
 // signature = sign("Besok jumat", privateKey)
 
 // console.log(verify("Besok jumat", signature, publicKey))
