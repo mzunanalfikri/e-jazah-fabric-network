@@ -12,6 +12,7 @@ const sortKey = require('sort-keys-recursive')
 
 const { Context } = require('fabric-contract-api')
 const { ChaincodeStub } = require('fabric-shim')
+const uuid = require('uuid')
 
 let assert = sinon.assert
 chai.use(sinonChai)
@@ -60,6 +61,19 @@ describe('E-jazah chaincode test', () => {
 
             return Promise.resolve(internalGetStateByRange());
         });
+
+        chaincodeStub.getTxTimestamp.callsFake(() => {
+            return {
+                "seconds" : {
+                    "low" : 10,
+                },
+                "nanos" : 10
+            }
+        });
+
+        chaincodeStub.getTxID.callsFake(() => {
+            return uuid.v1()
+        })
 
         adminUser = {
             ID : 'admin',

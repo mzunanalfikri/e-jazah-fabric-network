@@ -4,7 +4,8 @@
     "description": "E-jazah smart contract implemented in Javascript",
     "main": "index.js",
     "scripts": {
-        "test": "nyc mocha --recursive"
+        "test": "nyc mocha --recursive",
+        "start": "fabric-chaincode-node start"
     },
     "keywords": [
         "chaincode",

@@ -4,7 +4,7 @@ source scripts/utils.sh
 
 CHANNEL_NAME=${1:-"main-channel"}
 CC_NAME=${2:-"basic"}
-CC_SRC_PATH=${3:-"chaincode-javascript"}
+CC_SRC_PATH=${3:-"chaincode"}
 CC_SRC_LANGUAGE=${4:-"javascript"}
 CC_VERSION=${5:-"1.0"}
 CC_SEQUENCE=${6:-"1"}
@@ -29,7 +29,7 @@ println "- DELAY: ${C_GREEN}${DELAY}${C_RESET}"
 println "- MAX_RETRY: ${C_GREEN}${MAX_RETRY}${C_RESET}"
 println "- VERBOSE: ${C_GREEN}${VERBOSE}${C_RESET}"
 
-FABRIC_CFG_PATH=$PWD/config/
+export FABRIC_CFG_PATH=$PWD/config/
 
 #User has not provided a name
 if [ -z "$CC_NAME" ] || [ "$CC_NAME" = "NA" ]; then

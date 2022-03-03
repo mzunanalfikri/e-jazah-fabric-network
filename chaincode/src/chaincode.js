@@ -2,15 +2,14 @@
 
 const stringify = require('json-stringify-deterministic')
 const sortKey = require('sort-keys-recursive')
-const uuid = require('uuid')
 const bcrypt = require('bcrypt')
-var generator = require('generate-password');
+const crypto = require('crypto')
 const pki = require('./pki')
 const { Contract } = require('fabric-contract-api')
 const ADMIN_ROLE = 'admin'
 const STUDENT_ROLE = 'student'
 const INSTITUTION_ROLE = 'institusi'
-const SALT = 10
+const SALT = "$2b$10$jTyPa7Z7jE/O4wAOXrFpLe"
 
 class Chaincode extends Contract {
 
@@ -27,8 +26,10 @@ class Chaincode extends Contract {
     }
 
     async StudentInitTest(ctx){
-        await this.CreateInstitution(ctx, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY')
-        await this.CreateInstitution(ctx, 'admin', 'itb@gmail.com', 'Institut Teknologi Bandung', 'PT', 'Bandung', 'Jawa Barat')
+        let { privateKey, publicKey } = pki.generateKeyPair()
+        await this.CreateInstitution(ctx, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY', privateKey, publicKey)
+        // { privateKey, publicKey } = pki.generateKeyPair()
+        await this.CreateInstitution(ctx, 'admin', 'itb@gmail.com', 'Institut Teknologi Bandung', 'PT', 'Bandung', 'Jawa Barat', privateKey, publicKey)
         await this.CreateStudent(ctx,'sdbmd@gmail.com', '1234567890','Ahmad Maulana', 'Sleman','29-09-2008' )
         await this.CreateStudent(ctx,'itb@gmail.com', '340401999','Ahmad Alfikri', 'Sleman','29-09-1999' )
     }
@@ -36,10 +37,7 @@ class Chaincode extends Contract {
     // tested
     async IsAssetExist(ctx, id){
         const assetJSON = await ctx.stub.getState(id)
-        if (assetJSON === undefined){
-            return false
-        } 
-        return true
+        return assetJSON && assetJSON.length > 0;
     }
 
     // tested
@@ -54,7 +52,7 @@ class Chaincode extends Contract {
             throw new Error(`User ${authUser} is not institution`)
         }
 
-        const password = generator.generate({length:10, numbers: true})
+        const password = (crypto.createHash('md5').update(nik).digest('hex')).slice(0,8)
         const student = {
             ID: nik,
             Name : name,
@@ -75,7 +73,7 @@ class Chaincode extends Contract {
     }
 
     // tested
-    async CreateInstitution(ctx, authUser, institutionEmail, name, level, city, province){
+    async CreateInstitution(ctx, authUser, institutionEmail, name, level, city, province, privateKey, publicKey){
         const exist = await this.IsAssetExist(ctx, institutionEmail)
         if (exist) {
             throw new Error(`Institution ${name} with email ${institutionEmail} already exist`)
@@ -86,8 +84,8 @@ class Chaincode extends Contract {
             throw new Error(`User ${authUser} is not an admin`)
         }
 
-        const password = generator.generate({length:10, numbers: true})
-        const { privateKey, publicKey } = pki.generateKeyPair()
+        const password = (crypto.createHash('md5').update(institutionEmail).digest('hex')).slice(0,8)
+        // const { privateKey, publicKey } = pki.generateKeyPair()
         const institution = {
             ID : institutionEmail, 
             Name : name,
@@ -309,11 +307,14 @@ class Chaincode extends Contract {
 
     // tested
     async AddLog(ctx, id, message){
+        let timestamp = ctx.stub.getTxTimestamp()
+        const creationTime = Math.floor((timestamp.seconds.low + ((timestamp.nanos / 1000000) / 1000)) * 1000);
+        let date = (new Date(creationTime)).toISOString()
         const log = {
-            ID : uuid.v1(),
+            ID : ctx.stub.getTxID(),
             subjectID : id,
             message : message,
-            timestamp : new Date().toISOString(),
+            timestamp : date,
             docType : "log"
         }
 

@@ -4,12 +4,14 @@ const Chaincode = require('../src/chaincode')
 
 const sinon = require('sinon')
 const chai = require('chai')
+const pki = require('./../src/pki')
 const sinonChai = require('sinon-chai')
 const expect = chai.expect
 const bcrypt = require('bcrypt')
 
 const { Context } = require('fabric-contract-api')
 const { ChaincodeStub } = require('fabric-shim')
+const uuid = require('uuid')
 
 let assert = sinon.assert
 chai.use(sinonChai)
@@ -43,6 +45,19 @@ describe('E-jazah chaincode test', () => {
             }
             return Promise.resolve(key);
         });
+
+        chaincodeStub.getTxTimestamp.callsFake(() => {
+            return {
+                "seconds" : {
+                    "low" : 10,
+                },
+                "nanos" : 10
+            }
+        });
+
+        chaincodeStub.getTxID.callsFake(() => {
+            return uuid.v1()
+        })
 
         chaincodeStub.getStateByRange.callsFake(async () => {
             function* internalGetStateByRange() {
@@ -106,7 +121,7 @@ describe('E-jazah chaincode test', () => {
             let cc = new Chaincode();
             await cc.InitLedger(transactionContext)
             let res = await cc.IsAssetExist(transactionContext, 'zzaa@gmail.com')
-            expect(res).to.equal(false)
+            expect(res).to.equal(undefined)
         })
     })
 
@@ -114,7 +129,8 @@ describe('E-jazah chaincode test', () => {
         it ('Should created', async() => {
             let cc = new Chaincode()
             await cc.InitLedger(transactionContext)
-            let res = await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY')
+            const { privateKey, publicKey } = pki.generateKeyPair()
+            let res = await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY', privateKey, publicKey)
             let resObject = JSON.parse(res)
             expect(resObject.Name).to.equal("SD Budi Mulia")
         })
@@ -123,7 +139,8 @@ describe('E-jazah chaincode test', () => {
             let cc = new Chaincode()
             await cc.InitLedger(transactionContext)
             try {
-                let res = await cc.CreateInstitution(transactionContext, 'admin1', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY')
+                const { privateKey, publicKey } = pki.generateKeyPair()
+                let res = await cc.CreateInstitution(transactionContext, 'admin1', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY', privateKey, publicKey)
                 let resObject = JSON.parse(res)
                 expect(resObject.Name).to.equal("SD Budi Mulia")
             } catch (err) {
@@ -134,9 +151,10 @@ describe('E-jazah chaincode test', () => {
         it ('Should error', async() => {
             let cc = new Chaincode()
             await cc.InitLedger(transactionContext)
-            await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY')
+            const { privateKey, publicKey } = pki.generateKeyPair()
+            await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY', privateKey, publicKey)
             try {
-                let res = await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY')
+                let res = await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY', privateKey, publicKey)
                 let resObject = JSON.parse(res)
                 expect(resObject.Name).to.equal("SD Budi Mulia")
             } catch (err) {
@@ -149,7 +167,8 @@ describe('E-jazah chaincode test', () => {
         it ('Should created', async() => {
             let cc = new Chaincode()
             await cc.InitLedger(transactionContext)
-            await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY')
+            const { privateKey, publicKey } = pki.generateKeyPair()
+            await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY', privateKey, publicKey)
             let res = await cc.CreateStudent(transactionContext,'sdbmd@gmail.com', '1234567890','Ahmad Maulana', 'Sleman','29-09-2008' )
             let resObject = JSON.parse(res)
             expect(resObject.Name).equal("Ahmad Maulana")
@@ -158,7 +177,8 @@ describe('E-jazah chaincode test', () => {
         it ('Should error', async () => {
             let cc = new Chaincode()
             await cc.InitLedger(transactionContext)
-            await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY')
+            const { privateKey, publicKey } = pki.generateKeyPair()
+            await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY', privateKey, publicKey)
             try {
                 let res = await cc.CreateStudent(transactionContext,'admin', '1234567890','Ahmad Maulana', 'Sleman','29-09-2008' )
             } catch (error) {
@@ -169,7 +189,8 @@ describe('E-jazah chaincode test', () => {
         it ('Should error', async () => {
             let cc = new Chaincode()
             await cc.InitLedger(transactionContext)
-            await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY')
+            const { privateKey, publicKey } = pki.generateKeyPair()
+            await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY', privateKey, publicKey)
             await cc.CreateStudent(transactionContext,'sdbmd@gmail.com', '1234567890','Ahmad Maulana', 'Sleman','29-09-2008' )
             try {
                 let res = await cc.CreateStudent(transactionContext,'admin', '1234567890','Ahmad Maulana', 'Sleman','29-09-2008' )
@@ -224,7 +245,8 @@ describe('E-jazah chaincode test', () => {
             it ('should return user (success)', async() => {
                 let cc = new Chaincode()
                 await cc.InitLedger(transactionContext)
-                await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY')
+                const { privateKey, publicKey } = pki.generateKeyPair()
+                await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY', privateKey, publicKey)
                 let res = await cc.CreateStudent(transactionContext,'sdbmd@gmail.com', '1234567890','Ahmad Maulana', 'Sleman','29-09-2008' )
                 let resObject = JSON.parse(res)
                 let changed = await cc.ChangeStatusStudentIjazahLink(transactionContext, '1234567890')
@@ -235,7 +257,8 @@ describe('E-jazah chaincode test', () => {
             it ('should return user (success)', async() => {
                 let cc = new Chaincode()
                 await cc.InitLedger(transactionContext)
-                await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY')
+                const { privateKey, publicKey } = pki.generateKeyPair()
+                await cc.CreateInstitution(transactionContext, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY', privateKey, publicKey)
                 await cc.CreateStudent(transactionContext,'sdbmd@gmail.com', '1234567890','Ahmad Maulana', 'Sleman','29-09-2008' )
                 try {
                     let changed = await cc.ChangeStatusStudentIjazahLink(transactionContext, '12345678990')
