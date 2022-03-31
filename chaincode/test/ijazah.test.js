@@ -171,7 +171,7 @@ describe('E-jazah chaincode test', () => {
             delete certObject.Signature
             delete certObject.docType
 
-            let result = await cc.VerifyIjazah(transactionContext, 'SD-1234567890', stringify(sortKey(certObject)))
+            let result = await cc.VerifyIjazahContent(transactionContext, 'SD-1234567890', stringify(sortKey(certObject)))
             expect(result).equal("true")
         })
 
@@ -197,7 +197,7 @@ describe('E-jazah chaincode test', () => {
             delete certObject.Signature
             delete certObject.docType
 
-            let result = await cc.VerifyIjazah(transactionContext, 'PT-340401999', stringify(sortKey(certObject)))
+            let result = await cc.VerifyIjazahContent(transactionContext, 'PT-340401999', stringify(sortKey(certObject)))
             expect(result).equal("true")
         })
 
@@ -224,7 +224,7 @@ describe('E-jazah chaincode test', () => {
             delete certObject.docType
             certObject.LeaderName = 'Reina'
 
-            let result = await cc.VerifyIjazah(transactionContext, 'PT-340401999', stringify(sortKey(certObject)))
+            let result = await cc.VerifyIjazahContent(transactionContext, 'PT-340401999', stringify(sortKey(certObject)))
             expect(result).equal("false")
         })
     })
@@ -314,7 +314,6 @@ describe('E-jazah chaincode test', () => {
             )
             let res = await cc.GetAllIjazah(transactionContext)
             let resObj = JSON.parse(res)
-            console.log(resObj)
             expect(resObj.length).equal(2)
         })
     })

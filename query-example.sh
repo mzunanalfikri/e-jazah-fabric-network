@@ -24,3 +24,5 @@ export CORE_PEER_ADDRESS=localhost:7051
 
 # peer chaincode query -C main-channel -n basic -c '{"Args":["GetAllIjazah"]}' | jq 
 # peer chaincode query -C main-channel -n basic -c '{"Args":["ReadAsset", "asset1"]}' | jq 
+
+peer chaincode query -C main-channel -n basic -c '{"Args":["GetUserById", "itb@gmail.com"]}' | jq 

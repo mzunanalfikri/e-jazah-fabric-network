@@ -1,14 +1,12 @@
 'use strict';
 
-const stringify = require('json-stringify-deterministic')
-const sortKey = require('sort-keys-recursive')
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const pki = require('./pki')
 const { Contract } = require('fabric-contract-api')
 const ADMIN_ROLE = 'admin'
 const STUDENT_ROLE = 'student'
-const INSTITUTION_ROLE = 'institusi'
+const INSTITUTION_ROLE = 'institution'
 const SALT = "$2b$10$jTyPa7Z7jE/O4wAOXrFpLe"
 
 class Chaincode extends Contract {
@@ -66,6 +64,7 @@ class Chaincode extends Contract {
 
         await ctx.stub.putState(student.ID, Buffer.from(stringify(sortKey(student))))
         await this.AddLog(ctx, authUser, `${authUser} create ${nik} student account.`)
+        delete student.Password
         return JSON.stringify({
             ...student,
             PlainPassword : password
@@ -101,6 +100,9 @@ class Chaincode extends Contract {
 
         await ctx.stub.putState(institution.ID, Buffer.from(stringify(sortKey(institution))))
         await this.AddLog(ctx, authUser, `${authUser} create ${name} institution account with email ${institutionEmail}.`)
+        delete institution.Password
+        delete institution.PrivateKey
+        delete institution.PublicKey
         return JSON.stringify({
             ...institution,
             PlainPassword : password
@@ -114,6 +116,7 @@ class Chaincode extends Contract {
         if (!bcrypt.compareSync(password, userObject.Password)){
             throw new Error("Wrong password")
         }
+        delete userObject.Password
         return JSON.stringify(userObject)
     }
 
@@ -136,6 +139,18 @@ class Chaincode extends Contract {
         return user.toString()
     }
 
+    async GetUserProfile(ctx, id){
+        const user = await ctx.stub.getState(id)
+        if (!user || user.length === 0) {
+            throw new Error(`User ${id} does not exist`);
+        }
+        const userObject = JSON.parse(user.toString())
+        delete userObject.Password
+        delete userObject.PublicKey
+        delete userObject.PrivateKey
+        return JSON.stringify(userObject)
+    }
+
     // tested
     async UpdateUserPassword(ctx, id, newPassword){
         const user = await this.GetUserById(ctx, id)
@@ -144,6 +159,9 @@ class Chaincode extends Contract {
         userObject.Password = bcrypt.hashSync(newPassword, SALT)
         await ctx.stub.putState(id, Buffer.from(stringify(sortKey(userObject))))
         await this.AddLog(ctx, id, `${id} changed user password.`)
+        delete userObject.Password
+        delete userObject.PrivateKey
+        delete userObject.PublicKey
         return JSON.stringify(userObject)
     }
 
@@ -159,7 +177,7 @@ class Chaincode extends Contract {
     }
 
     // tested
-    async CreateIjazahPT(ctx, authUser, nik, studNumber, prodi, gelar, singkatan, gradDate, issueDate, leaderName, grade){
+    async CreateIjazahPT(ctx, authUser, nik, studNumber, tingkat, prodi, gelar, singkatan, gradDate, issueDate, leaderName, ipk, grade){
         let student = JSON.parse(await this.GetUserById(ctx, nik))
         let institution = JSON.parse(await this.GetUserById(ctx, authUser))
         // console.log(student)
@@ -176,6 +194,7 @@ class Chaincode extends Contract {
             BirthPlace : student.BirthPlace,
             BirthDate : student.BirthDate,
             NIK : student.ID,
+            Tingkat : tingkat,
             StudentNumber : studNumber,
             Prodi : prodi,
             Gelar : gelar,
@@ -183,6 +202,7 @@ class Chaincode extends Contract {
             GraduationDate : gradDate,
             IssueDate : issueDate,
             LeaderName : leaderName,
+            IPK : ipk,
             Grade : grade //need to parse
         }
 
@@ -242,6 +262,28 @@ class Chaincode extends Contract {
         return ijazah.toString()
     }
 
+    async GetIjazahByUserCheckLink(ctx, id){
+        let allResult = []
+        let iterator = await ctx.stub.getStateByRange('','')
+        let result = await iterator.next()
+        let user = JSON.parse(await this.GetUserById(ctx, id))
+        if (user.LinkOn) {
+            while (!result.done){
+                let strObj = Buffer.from(result.value.value.toString()).toString('utf8')
+                let obj = JSON.parse(strObj)
+                // console.log(obj)
+                if (obj.docType == 'ijazah' && obj.NIK == id){
+                    allResult.push(obj)
+                }
+    
+                result = await iterator.next()
+            }
+            return JSON.stringify(allResult)
+        } else {
+            throw new Error('User link off')
+        }
+    }
+
     async GetIjazahByUser(ctx, id){
         let allResult = []
         let iterator = await ctx.stub.getStateByRange('','')
@@ -295,8 +337,18 @@ class Chaincode extends Contract {
         return JSON.stringify(allResult)
     }
 
+    async VerifyIjazahById(ctx, ijazahId){
+        let ijazah = JSON.parse(await this.GetIjazahById(ctx, ijazahId))
+
+        return JSON.stringify({
+            Name : ijazah.StudentName,
+            InstitutionName : ijazah.InstitutionName,
+            Level : ijazah.Level,
+        })
+    }
+
     // content must be stringify and sortByKey
-    async VerifyIjazah(ctx, idIjazah, contentString){
+    async VerifyIjazahContent(ctx, idIjazah, contentString){
         let ijazah = JSON.parse(await this.GetIjazahById(ctx, idIjazah))
         let institution = JSON.parse(await this.GetUserById(ctx, ijazah.InstitutionEmail))
         // console.log(ijazah)
