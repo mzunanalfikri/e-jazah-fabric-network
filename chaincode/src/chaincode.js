@@ -1,5 +1,7 @@
 'use strict';
 
+const stringify = require('json-stringify-deterministic')
+const sortKey = require('sort-keys-recursive')
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const pki = require('./pki')
@@ -55,8 +57,8 @@ class Chaincode extends Contract {
             ID: nik,
             Name : name,
             Password : bcrypt.hashSync(password, SALT),
-            BirthDate : birthPlace,
-            BirthPlace : birthDate,
+            BirthPlace : birthPlace,
+            BirthDate : birthDate,
             LinkOn : false,
             Role : STUDENT_ROLE,
             docType: "user"
