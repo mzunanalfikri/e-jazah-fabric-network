@@ -179,13 +179,19 @@ class Chaincode extends Contract {
     }
 
     // tested
-    async CreateIjazahPT(ctx, authUser, nik, studNumber, tingkat, prodi, gelar, singkatan, gradDate, issueDate, leaderName, ipk, grade){
+    async CreateIjazahPT(ctx, authUser, nik, studNumber, tingkat, prodi, gelar, singkatan, gradDate, issueDate, leaderName, predikat){
         let student = JSON.parse(await this.GetUserById(ctx, nik))
         let institution = JSON.parse(await this.GetUserById(ctx, authUser))
-        // console.log(student)
-        // console.log(institution)
-
-        let id = institution.Level + "-" + student.ID
+        let hash = crypto.createHash('md5').update(institution.Name+tingkat+prodi).digest('hex');
+        
+        let id = institution.Level + "-" + student.ID + "-" + tingkat + "-" + hash.substring(1,4)
+        const ijazah = await ctx.stub.getState(id)
+        if (!ijazah || ijazah.length === 0) {
+            console.log("Ijazah belum terdaftar, lanjut membuat ...")
+        } else {
+            throw new Error(`Ijazah dengan ${id} telah terdaftar`);
+        }
+        
         let certificate = {
             ID : id,
             InstitutionName : institution.Name,
@@ -204,8 +210,9 @@ class Chaincode extends Contract {
             GraduationDate : gradDate,
             IssueDate : issueDate,
             LeaderName : leaderName,
-            IPK : ipk,
-            Grade : grade //need to parse
+            Predikat : predikat
+            // IPK : ipk,
+            // Grade : grade //need to parse
         }
 
         let signature = pki.sign(stringify(sortKey(certificate)), institution.PrivateKey)
@@ -227,6 +234,12 @@ class Chaincode extends Contract {
         // console.log(institution)
 
         let id = institution.Level + "-" + student.ID
+        const ijazah = await ctx.stub.getState(id)
+        if (!ijazah || ijazah.length === 0) {
+            console.log("Ijazah belum terdaftar, lanjut membuat ...")
+        } else {
+            throw new Error(`Ijazah dengan ${id} telah terdaftar`);
+        }
         let certificate = {
             ID : id,
             InstitutionName : institution.Name,
