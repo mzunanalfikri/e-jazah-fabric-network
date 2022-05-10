@@ -13,7 +13,7 @@ const SALT = "$2b$10$jTyPa7Z7jE/O4wAOXrFpLe"
 
 class Chaincode extends Contract {
 
-    // tested
+    // used
     async InitLedger(ctx) {
         const admin = {
             ID : 'admin',
@@ -25,22 +25,13 @@ class Chaincode extends Contract {
         await ctx.stub.putState(admin.ID, Buffer.from(stringify(sortKey(admin))))
     }
 
-    async StudentInitTest(ctx){
-        let { privateKey, publicKey } = pki.generateKeyPair()
-        await this.CreateInstitution(ctx, 'admin', 'sdbmd@gmail.com', 'SD Budi Mulia', 'SD', 'Sleman', 'DIY', privateKey, publicKey)
-        // { privateKey, publicKey } = pki.generateKeyPair()
-        await this.CreateInstitution(ctx, 'admin', 'itb@gmail.com', 'Institut Teknologi Bandung', 'PT', 'Bandung', 'Jawa Barat', privateKey, publicKey)
-        await this.CreateStudent(ctx,'sdbmd@gmail.com', '1234567890','Ahmad Maulana', 'Sleman','29-09-2008' )
-        await this.CreateStudent(ctx,'itb@gmail.com', '340401999','Ahmad Alfikri', 'Sleman','29-09-1999' )
-    }
-
-    // tested
+    // used
     async IsAssetExist(ctx, id){
         const assetJSON = await ctx.stub.getState(id)
         return assetJSON && assetJSON.length > 0;
     }
 
-    // tested
+    // used
     async CreateStudent(ctx, authUser, nik, name, birthPlace, birthDate) {
         const exists = await this.IsAssetExist(ctx, nik)
         if (exists){
@@ -73,7 +64,7 @@ class Chaincode extends Contract {
         })
     }
 
-    // tested
+    // used
     async CreateInstitution(ctx, authUser, institutionEmail, name, level, city, province, privateKey, publicKey){
         const exist = await this.IsAssetExist(ctx, institutionEmail)
         if (exist) {
@@ -111,7 +102,7 @@ class Chaincode extends Contract {
         })
     }
 
-    // tested
+    // used
     async CheckUserCredential(ctx, id, password){
         const user = await this.GetUserById(ctx, id)
         let userObject = JSON.parse(user.toString())
@@ -122,7 +113,6 @@ class Chaincode extends Contract {
         return JSON.stringify(userObject)
     }
 
-    // tested
     async GetUserRole(ctx, id){
         const user = await ctx.stub.getState(id)
         if (!user || user.length === 0) {
@@ -132,7 +122,6 @@ class Chaincode extends Contract {
         return userObject["Role"]
     }
 
-    // tested
     async GetUserById(ctx, id){
         const user = await ctx.stub.getState(id)
         if (!user || user.length === 0) {
@@ -141,6 +130,7 @@ class Chaincode extends Contract {
         return user.toString()
     }
 
+    // used
     async GetUserProfile(ctx, id){
         const user = await ctx.stub.getState(id)
         if (!user || user.length === 0) {
@@ -153,10 +143,14 @@ class Chaincode extends Contract {
         return JSON.stringify(userObject)
     }
 
-    // tested
-    async UpdateUserPassword(ctx, id, newPassword){
+    // used
+    async UpdateUserPassword(ctx, id, oldPassword, newPassword){
         const user = await this.GetUserById(ctx, id)
         let userObject = JSON.parse(user)
+
+        if (userObject.Password != bcrypt.hashSync(oldPassword, SALT)){
+            throw new Error('Password lama salah')
+        }
 
         userObject.Password = bcrypt.hashSync(newPassword, SALT)
         await ctx.stub.putState(id, Buffer.from(stringify(sortKey(userObject))))
@@ -167,7 +161,7 @@ class Chaincode extends Contract {
         return JSON.stringify(userObject)
     }
 
-    // tested
+    //used
     async ChangeStatusStudentIjazahLink(ctx, id){
         const user = await this.GetUserById(ctx, id)
         let userObject = JSON.parse(user)
@@ -178,7 +172,7 @@ class Chaincode extends Contract {
         return JSON.stringify(userObject)
     }
 
-    // tested
+    // used
     async CreateIjazahPT(ctx, authUser, nik, studNumber, tingkat, prodi, gelar, singkatan, gradDate, issueDate, leaderName, predikat){
         let student = JSON.parse(await this.GetUserById(ctx, nik))
         let institution = JSON.parse(await this.GetUserById(ctx, authUser))
@@ -226,7 +220,7 @@ class Chaincode extends Contract {
         return JSON.stringify(certificate)
     }
 
-    // tested
+    // used
     async CreateIjazahLowerEducation(ctx, authUser, nik, studNumber, gradDate, issueDate, leaderName, grade){
         let student = JSON.parse(await this.GetUserById(ctx, nik))
         let institution = JSON.parse(await this.GetUserById(ctx, authUser))
@@ -268,7 +262,7 @@ class Chaincode extends Contract {
         return JSON.stringify(certificate)
     }
 
-    // tested
+    // used
     async GetIjazahById(ctx, id){
         const ijazah = await ctx.stub.getState(id)
         if (!ijazah || ijazah.length === 0) {
@@ -277,6 +271,7 @@ class Chaincode extends Contract {
         return ijazah.toString()
     }
 
+    // used
     async GetIjazahByUserCheckLink(ctx, id){
         let allResult = []
         let iterator = await ctx.stub.getStateByRange('','')
@@ -299,6 +294,7 @@ class Chaincode extends Contract {
         }
     }
 
+    // not used
     async GetIjazahByUser(ctx, id){
         let allResult = []
         let iterator = await ctx.stub.getStateByRange('','')
@@ -316,7 +312,7 @@ class Chaincode extends Contract {
         return JSON.stringify(allResult)
     }
 
-    // institusi only
+    //used
     async GetIjazahByInstitution(ctx, id){
         let allResult = []
         let iterator = await ctx.stub.getStateByRange('','')
@@ -334,7 +330,7 @@ class Chaincode extends Contract {
         return JSON.stringify(allResult)
     }
 
-    // admin only
+    //used
     async GetAllIjazah(ctx){
         let allResult = []
         let iterator = await ctx.stub.getStateByRange('','')
@@ -352,6 +348,7 @@ class Chaincode extends Contract {
         return JSON.stringify(allResult)
     }
 
+    // used
     async VerifyIjazahById(ctx, ijazahId){
         let ijazah = JSON.parse(await this.GetIjazahById(ctx, ijazahId))
 
@@ -362,7 +359,7 @@ class Chaincode extends Contract {
         })
     }
 
-    // content must be stringify and sortByKey
+    // used
     async VerifyIjazahContent(ctx, idIjazah, contentString){
         let ijazah = JSON.parse(await this.GetIjazahById(ctx, idIjazah))
         let institution = JSON.parse(await this.GetUserById(ctx, ijazah.InstitutionEmail))
@@ -372,7 +369,6 @@ class Chaincode extends Contract {
         return JSON.stringify(res)
     }
 
-    // tested
     async AddLog(ctx, id, message){
         let timestamp = ctx.stub.getTxTimestamp()
         const creationTime = Math.floor((timestamp.seconds.low + ((timestamp.nanos / 1000000) / 1000)) * 1000);
@@ -386,6 +382,31 @@ class Chaincode extends Contract {
         }
 
         await ctx.stub.putState(log.ID, Buffer.from(stringify(sortKey(log))))
+    }
+
+    // todo get log
+    async GetAllLog(ctx, adminId, password){
+        let user = await this.CheckUserCredential(ctx, adminId, password)
+        user = JSON.parse(user)
+        if (user.Role != ADMIN_ROLE){
+            throw new Error('Hanya admin yang bisa melihat log.')
+        }
+
+        let allResult = []
+        let iterator = await ctx.stub.getStateByRange('','')
+        let result = await iterator.next()
+        while (!result.done){
+            let strObj = Buffer.from(result.value.value.toString()).toString('utf8')
+            let obj = JSON.parse(strObj)
+            // console.log(obj)
+            if (obj.docType == 'log'){
+                allResult.push(obj)
+            }
+
+            result = await iterator.next()
+        }
+
+        return JSON.stringify(allResult)
     }
 }
 
