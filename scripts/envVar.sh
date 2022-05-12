@@ -13,6 +13,7 @@
 export CORE_PEER_TLS_ENABLED=true
 export ORDERER_CA=${PWD}/organizations/ordererOrganizations/e-jazah.id/tlsca/tlsca.e-jazah.id-cert.pem
 export ORG1_CA=${PWD}/organizations/peerOrganizations/org1.e-jazah.id/tlsca/tlsca.org1.e-jazah.id-cert.pem
+export ORG2_CA=${PWD}/organizations/peerOrganizations/org2.e-jazah.id/tlsca/tlsca.org2.e-jazah.id-cert.pem
 export ORDERER_ADMIN_TLS_SIGN_CERT=${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/server.crt
 export ORDERER2_ADMIN_TLS_SIGN_CERT=${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer2.e-jazah.id/tls/server.crt
 export ORDERER_ADMIN_TLS_PRIVATE_KEY=${PWD}/organizations/ordererOrganizations/e-jazah.id/orderers/orderer.e-jazah.id/tls/server.key
@@ -44,6 +45,24 @@ setGlobals() {
       export CORE_PEER_TLS_ROOTCERT_FILE=$ORG1_CA
       export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.e-jazah.id/users/Admin@org1.e-jazah.id/msp
       export CORE_PEER_ADDRESS=localhost:11051
+   elif [ $USING_ORG -eq 4 ]; then
+      infoln "Using peer 0, org 2 port 7061"
+      export CORE_PEER_LOCALMSPID="Org2MSP"
+      export CORE_PEER_TLS_ROOTCERT_FILE=$ORG2_CA
+      export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.e-jazah.id/users/Admin@org2.e-jazah.id/msp
+      export CORE_PEER_ADDRESS=localhost:7061
+   elif [ $USING_ORG -eq 5 ]; then
+      infoln "Using peer 1, org2 port 9061"
+      export CORE_PEER_LOCALMSPID="Org2MSP"
+      export CORE_PEER_TLS_ROOTCERT_FILE=$ORG2_CA
+      export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.e-jazah.id/users/Admin@org2.e-jazah.id/msp
+      export CORE_PEER_ADDRESS=localhost:9061
+   elif [ $USING_ORG -eq 6 ]; then
+      infoln "Using peer 2, org2 port 11061"
+      export CORE_PEER_LOCALMSPID="Org2MSP"
+      export CORE_PEER_TLS_ROOTCERT_FILE=$ORG2_CA
+      export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.e-jazah.id/users/Admin@org2.e-jazah.id/msp
+      export CORE_PEER_ADDRESS=localhost:11061
    else
       errorln "ORG Unknown"
    fi
@@ -66,9 +85,15 @@ setGlobalsCLI() {
    if [ $USING_ORG -eq 1 ]; then
       export CORE_PEER_ADDRESS=peer0.org1.e-jazah.id:7051
    elif [ $USING_ORG -eq 2 ]; then
-      export CORE_PEER_ADDRESS=peer1.org2.e-jazah.id:9051
+      export CORE_PEER_ADDRESS=peer1.org1.e-jazah.id:9051
    elif [ $USING_ORG -eq 3 ]; then
-      export CORE_PEER_ADDRESS=peer2.org3.e-jazah.id:11051
+      export CORE_PEER_ADDRESS=peer2.org1.e-jazah.id:11051
+   elif [ $USING_ORG -eq 4 ]; then
+      export CORE_PEER_ADDRESS=peer0.org2.e-jazah.id:7061
+   elif [ $USING_ORG -eq 5 ]; then
+      export CORE_PEER_ADDRESS=peer1.org2.e-jazah.id:9061
+   elif [ $USING_ORG -eq 6 ]; then
+      export CORE_PEER_ADDRESS=peer2.org2.e-jazah.id:11061
    else
       errorln "ORG Unknown"
    fi

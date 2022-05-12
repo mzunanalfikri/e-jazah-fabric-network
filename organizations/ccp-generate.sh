@@ -42,11 +42,13 @@ CAPEM=organizations/peerOrganizations/org1.e-jazah.id/ca/ca.org1.e-jazah.id-cert
 echo "$(json_ccp $ORG $P0PORT $P1PORT $P2PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org1.e-jazah.id/connection-org1.json
 echo "$(yaml_ccp $ORG $P0PORT $P1PORT $P2PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org1.e-jazah.id/connection-org1.yaml
 
-# ORG=2
-# P0PORT=9051
-# CAPORT=8054
-# PEERPEM=organizations/peerOrganizations/org2.e-jazah.id/tlsca/tlsca.org2.e-jazah.id-cert.pem
-# CAPEM=organizations/peerOrganizations/org2.e-jazah.id/ca/ca.org2.e-jazah.id-cert.pem
+ORG=2
+P0PORT=7061
+P1PORT=9061
+P2PORT=11061
+CAPORT=8054
+PEERPEM=organizations/peerOrganizations/org2.e-jazah.id/tlsca/tlsca.org2.e-jazah.id-cert.pem
+CAPEM=organizations/peerOrganizations/org2.e-jazah.id/ca/ca.org2.e-jazah.id-cert.pem
 
-# echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.e-jazah.id/connection-org2.json
-# echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.e-jazah.id/connection-org2.yaml
+echo "$(json_ccp $ORG $P0PORT $P1PORT $P2PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.e-jazah.id/connection-org2.json
+echo "$(yaml_ccp $ORG $P0PORT $P1PORT $P2PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.e-jazah.id/connection-org2.yaml

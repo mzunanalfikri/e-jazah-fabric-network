@@ -78,15 +78,17 @@ function checkCommitReadiness() {
 
 # commitChaincodeDefinition VERSION PEER ORG (PEER ORG)...
 function commitChaincodeDefinition() {
-  parsePeerConnectionParameters $@
+  # parsePeerConnectionParameters $@
   res=$?
   verifyResult $res "Invoke transaction failed on channel '$CHANNEL_NAME' due to uneven number of peer and org parameters "
 
+  PEER_PATH="--peerAddresses localhost:7051 --tlsRootCertFiles /Users/mzunanalfikri/fabric/e-jazah-fabric-network/organizations/peerOrganizations/org1.e-jazah.id/tlsca/tlsca.org1.e-jazah.id-cert.pem --peerAddresses localhost:9051 --tlsRootCertFiles /Users/mzunanalfikri/fabric/e-jazah-fabric-network/organizations/peerOrganizations/org1.e-jazah.id/tlsca/tlsca.org1.e-jazah.id-cert.pem --peerAddresses localhost:11051 --tlsRootCertFiles /Users/mzunanalfikri/fabric/e-jazah-fabric-network/organizations/peerOrganizations/org1.e-jazah.id/tlsca/tlsca.org1.e-jazah.id-cert.pem --peerAddresses localhost:7061 --tlsRootCertFiles /Users/mzunanalfikri/fabric/e-jazah-fabric-network/organizations/peerOrganizations/org2.e-jazah.id/tlsca/tlsca.org2.e-jazah.id-cert.pem --peerAddresses localhost:9061 --tlsRootCertFiles /Users/mzunanalfikri/fabric/e-jazah-fabric-network/organizations/peerOrganizations/org2.e-jazah.id/tlsca/tlsca.org2.e-jazah.id-cert.pem --peerAddresses localhost:11061 --tlsRootCertFiles /Users/mzunanalfikri/fabric/e-jazah-fabric-network/organizations/peerOrganizations/org2.e-jazah.id/tlsca/tlsca.org2.e-jazah.id-cert.pem"
   # while 'peer chaincode' command can get the orderer endpoint from the
   # peer (if join was successful), let's supply it directly as we know
   # it using the "-o" option
   set -x
-  peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.e-jazah.id --tls --cafile "$ORDERER_CA" --channelID $CHANNEL_NAME --name ${CC_NAME} "${PEER_CONN_PARMS[@]}" --version ${CC_VERSION} --sequence ${CC_SEQUENCE} ${INIT_REQUIRED} ${CC_END_POLICY} ${CC_COLL_CONFIG} >&log.txt
+  # peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.e-jazah.id --tls --cafile "$ORDERER_CA" --channelID $CHANNEL_NAME --name ${CC_NAME} "${PEER_CONN_PARMS[@]}" --version ${CC_VERSION} --sequence ${CC_SEQUENCE} ${INIT_REQUIRED} ${CC_END_POLICY} ${CC_COLL_CONFIG} >&log.txt
+  peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.e-jazah.id --tls --cafile "$ORDERER_CA" --channelID $CHANNEL_NAME --name ${CC_NAME} ${PEER_PATH} --version ${CC_VERSION} --sequence ${CC_SEQUENCE} ${INIT_REQUIRED} ${CC_END_POLICY} ${CC_COLL_CONFIG} >&log.txt
   res=$?
   { set +x; } 2>/dev/null
   cat log.txt

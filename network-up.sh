@@ -79,11 +79,15 @@ function createOrgs() {
 
     createOrg1
 
+    infoln "Creating Org2 Identities"
+
+    createOrg2
+
     infoln "Creating Orderer Org Identities"
 
     createOrderer
 
-    infoln "Generating CCP files for Org1"
+    infoln "Generating CCP files for Org1 and Org2"
     ./organizations/ccp-generate.sh
 }
 
