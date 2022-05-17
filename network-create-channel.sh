@@ -109,15 +109,15 @@ joinChannel 6
 ## Set the anchor peers in the channel
 infoln "Setting anchor peer 0 for org1..."
 setAnchorPeer 1
-infoln "Setting anchor peer 1 for org1..."
-setAnchorPeer 2
-infoln "Setting anchor peer 2 for org1..."
-setAnchorPeer 3
+# infoln "Setting anchor peer 1 for org1..."
+# setAnchorPeer 2
+# infoln "Setting anchor peer 2 for org1..."
+# setAnchorPeer 3
 infoln "Setting anchor peer 0 for org2..."
 setAnchorPeer 4
-infoln "Setting anchor peer 1 for org2..."
-setAnchorPeer 5
-infoln "Setting anchor peer 2 for org2..."
-setAnchorPeer 6
+# infoln "Setting anchor peer 1 for org2..."
+# setAnchorPeer 5
+# infoln "Setting anchor peer 2 for org2..."
+# setAnchorPeer 6
 
 successln "Channel '$CHANNEL_NAME' joined"

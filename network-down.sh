@@ -23,7 +23,7 @@ function removeUnwantedImages() {
 DOCKER_SOCK=$DOCKER_SOCK docker-compose -f docker/docker-compose-ca.yaml -f docker/docker-compose-network.yaml -p e-jazah_network down --volumes --remove-orphans
 
 # Bring down the network, deleting the volumes
-docker volume rm e-jazah_network_orderer.e-jazah.id e-jazah_network_peer0.org1.e-jazah.id e-jazah_network_peer1.org1.e-jazah.id
+docker volume rm e-jazah_network_orderer.e-jazah.id e-jazah_network_orderer2.e-jazah.id e-jazah_network_peer0.org1.e-jazah.id e-jazah_network_peer1.org1.e-jazah.id e-jazah_network_peer2.org1.e-jazah.id  e-jazah_network_peer0.org2.e-jazah.id e-jazah_network_peer1.org2.e-jazah.id e-jazah_network_peer2.org2.e-jazah.id
 #Cleanup the chaincode containers
 clearContainers
 #Cleanup images
